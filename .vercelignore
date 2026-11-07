@@ -1,0 +1,8 @@
+node_modules
+.git
+tests
+scripts/account-access.mjs
+README.md
+*.png
+.env*
+.vercel

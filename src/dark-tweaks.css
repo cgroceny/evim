@@ -1,0 +1,45 @@
+/* Hand-tuned dark-mode values on top of the generated src/dark.css. */
+:root[data-scheme="dark"] {
+  color-scheme: dark;
+  --green-ink: #9fd1b4;
+  --muted-ink: #a3ada6;
+}
+:root[data-scheme="dark"] .theme-blue {
+  --green-ink: #a7cde2;
+}
+:root[data-scheme="dark"] .theme-earth {
+  --green-ink: #e2c39f;
+}
+:root[data-scheme="light"] {
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-scheme="light"]) {
+    color-scheme: dark;
+    --green-ink: #9fd1b4;
+    --muted-ink: #a3ada6;
+  }
+  :root:not([data-scheme="light"]) .theme-blue {
+    --green-ink: #a7cde2;
+  }
+  :root:not([data-scheme="light"]) .theme-earth {
+    --green-ink: #e2c39f;
+  }
+}
+.scheme-picker {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+/* The active sidebar item is a light pill in light mode; keep it clearly
+   distinct from the dark sidebar in dark mode. */
+:root[data-scheme="dark"] .sidebar nav button.active {
+  background: #ffffff24;
+  color: #f0f5e6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-scheme="light"]) .sidebar nav button.active {
+    background: #ffffff24;
+    color: #f0f5e6;
+  }
+}
