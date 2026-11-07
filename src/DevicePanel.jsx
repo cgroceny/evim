@@ -254,6 +254,7 @@ export default function DevicePanel({
   actions,
   registry,
   onCompanion,
+  children,
 }) {
   const [query, setQuery] = useState(""),
     [room, setRoom] = useState(""),
@@ -281,6 +282,7 @@ export default function DevicePanel({
           Cihazları keşfet
         </button>
       </header>
+      {children}
       <div className="device-filter">
         <label className="search-box">
           <Search size={18} />

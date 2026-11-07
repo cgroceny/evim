@@ -1000,6 +1000,9 @@
 :root[data-scheme="dark"] .device-reading.unavailable {
   color: #e2b292;
 }
+:root[data-scheme="dark"] .ha-reading small, :root[data-scheme="dark"] .ha-reading-actions small {
+  color: var(--muted-ink);
+}
 :root[data-scheme="dark"] .climate-current {
   color: #b3c2ab;
 }
@@ -2164,6 +2167,9 @@
 }
 :root:not([data-scheme="light"]) .device-reading.unavailable {
   color: #e2b292;
+}
+:root:not([data-scheme="light"]) .ha-reading small, :root:not([data-scheme="light"]) .ha-reading-actions small {
+  color: var(--muted-ink);
 }
 :root:not([data-scheme="light"]) .climate-current {
   color: #b3c2ab;

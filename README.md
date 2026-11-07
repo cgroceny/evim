@@ -6,7 +6,7 @@ Vercel projesi: evim-control.
 ## Başlangıç
 
 1. **Hesap & ayarlar → Giriş yap → Kodla giriş** bölümünde kullanıcı adı ve kişisel erişim kodunu kullan. Parolayla giriş ve yeni hesap oluşturma da desteklenir. Aynı hesap telefon ve bilgisayarda aynı ev düzenini kullanır. İlk girişte gösterilen kurtarma anahtarını sakla; e-posta ile parola sıfırlama yoktur.
-2. **Entegrasyonlar** bölümünde Home Assistant'ın erişilebilir HTTPS adresine bağlan. Kimlik doğrulama Home Assistant'ın kendi ekranında yapılır.
+2. **Cihazlar** ekranında Home Assistant sensör ve priz verilerini izle. Bu okuma için aşağıdaki sunucu bağlantısı kurulur. Cihaz komutları ve otomasyonlar için **Entegrasyonlar** bölümündeki Home Assistant oturumunu kullan.
 3. Cihazları önce Home Assistant'a tanıt. Sonra **Cihazları keşfet** ile seçip evim'e aktar. Home Assistant oda kayıtları kullanılabilir; odasız cihazlara varsayılan oda atanabilir. Yeniden keşif aynı varlığı ikinci kez eklemez.
 4. **Enerji → Kaynaklar & tarife** bölümünde ana enerji sayacını, anlık güç sensörünü, alt sayaçları ve kendi birim fiyatını seç.
 5. **Senaryolar** üzerinden adımları birleştir; **Programlar** üzerinden tetikleyici ve koşul ekle. Kesintisiz çalışma için her programı **Sunucuya aktar** ile Home Assistant'a kaydet.
@@ -84,7 +84,7 @@ Misafir düzeni tarayıcıda kalır. Kişisel hesap düzeni mevcut private Verce
 
 Hesap güvenliği ekranında parola değişikliği, kurtarma anahtarını yenileme ve diğer oturumları kapatma bulunur. Parola/anahtar değişikliği mevcut parolayı doğrular ve eski oturumları iptal eder. Parolalar ayrı salt ile scrypt özetidir; kurtarma anahtarı da özetlenir. Cookie HttpOnly/Secure/SameSite=Strict'tir; isteklerin kökeni, hesap kimliği ve sunucu oturumu doğrulanır. Kimlik doğrulama denemeleri sınırlandırılır. Kimlik bilgileri uygulama yedeklerine girmez.
 
-Home Assistant belirteci yalnız mevcut tarayıcı sekmesi oturumunda tutulur; bulut ev düzenine gönderilmez. EVIM_AUTH_SECRET ve Blob sırları yalnız sunucu ortamındadır. .env dosyaları ve .vercel klasörü yayıma/kaynak arşivine eklenmez. Mevcut private deponun/hosting planının kullanım kotaları geçerlidir; ücretli plan değişikliği yapılmadı.
+Entegrasyonlar bölümündeki doğrudan Home Assistant oturumu tarayıcı sekmesinde tutulur. Canlı ölçüm kartı ayrı bir sunucu bağlantısı kullanır. Home Assistant'ın uzun ömürlü jetonu, EVIM_AUTH_SECRET ve Blob sırları sunucu ortamında saklanır. .env dosyaları ve .vercel klasörü yayıma/kaynak arşivine eklenmez. Vercel Blob ve hosting planının kullanım kotaları geçerlidir.
 
 v1/v2/v3 kayıtlar veri şeması v4'e taşınır; tarayıcı depolama anahtarı korunur. Klima kullanım türünün ve yeni alanların eski istemci tarafından silinmesini önlemek için v2/v3 verisiyle yazma reddedilir ve sayfa yenilemesi istenir. JSON yedekleri odalar, cihazlar, enerji ayarları, programlar ve silinenleri taşır. Koleksiyon başına 250 kayıt, senaryo başına 100 adım, 500 KB yedek ve son 100 silinen kayıt sınırı vardır.
 
@@ -95,6 +95,28 @@ Alt menüde enerjiye doğrudan erişim, geniş dokunma alanları ve küçük ekr
 Service worker yalnız uygulamanın herkese açık HTML/CSS/JS/simge dosyalarını saklar. API cevaplarını, oturum dönüşlerini veya Home Assistant verilerini önbelleğe almaz; fiziksel komutları daha sonra tekrar oynatmaz. İlk çevrimiçi yüklemeden sonra uygulama kabuğu çevrimdışı açılabilir. Bulut hesabının çevrimdışı yeniden doğrulanması ve gerçek uzaktan kontrol yoktur. Açık oturumda yerel değişiklikler bağlantı gelene kadar bekleyebilir; durum üst bantta gösterilir.
 
 **Sistem durumu** eksik eşleştirmeleri, erişilemeyen cihazları, bilinen düşük pili, enerji istatistik sorunlarını ve aktarılmayı bekleyen programları listeler. Tanı raporu parola, belirteç ve konum koordinatı içermez. **Yardım** kurulumu, markalar arası bağlantıyı, enerji ve telefon kullanımını açıklar.
+
+## Home Assistant ölçümlerini bağlama
+
+Home Assistant'ın ilk kurulumunu tamamla. Profil → **Güvenlik** → **Uzun ömürlü erişim jetonları** bölümünden bağlantı için bir jeton üret. Vercel projesinin **Production** ortamında şu değerleri tanımla ve yeniden yayımla.
+
+| Değişken | Değer |
+| --- | --- |
+| `HA_BASE_URL` | Vercel’in ulaşabildiği Home Assistant HTTPS kökeni. Örneğin `https://ha-api.example.com`. |
+| `HA_OWNER_USERNAME` | Ölçümleri görecek Evim hesabının kullanıcı adı. |
+| `HA_ACCESS_TOKEN` | Home Assistant'ın uzun ömürlü jetonu. Vercel’de **Secret / Sensitive** olarak ekle. |
+| `HA_CF_ACCESS_CLIENT_ID` ve `HA_CF_ACCESS_CLIENT_SECRET` | Cloudflare Access kullanıyorsan servis jetonunun iki alanı. İkisini de Production ortamına ekle. |
+| `HA_ENTITY_IDS` | İsteğe bağlı virgülle ayrılmış varlık kimlikleri. Boşken sensör, ikili sensör ve anahtar durumları gösterilir. |
+
+Evim, giriş yapılan hesabı doğrular ve sunucudan `GET /api/states` çağırır. **Cihazlar → Canlı sensör ve priz verileri** bölümü sayfa açıkken 30 saniyede bir yenilenir. Jetonun kapsamı Home Assistant hesabının izinlerinden gelir. Ölçüm bağlantısı yalnız okuma yapar.
+
+Cloudflare için önce tüm API alt alanını kapsayan bir **Access Service Auth** uygulaması kur ve yalnız Vercel’in servis jetonunu yetkilendir. Sonra Tunnel’da bu alt alanı Pi’deki Home Assistant servisine yönlendir ve yolu `/api/states` ile sınırla. Home Assistant’ın ters vekil ayarına kullanılan konektörün adresini ekle. Nabu Casa kullanıyorsan **Home Assistant Cloud → Uzaktan erişim** bölümünde verilen HTTPS kökenini gir.
+
+- [Home Assistant REST API](https://developers.home-assistant.io/docs/api/rest/)
+- [Cloudflare Tunnel](https://developers.cloudflare.com/tunnel/get-started/)
+- [Cloudflare Access servis jetonları](https://developers.cloudflare.com/cloudflare-one/access-controls/service-credentials/service-tokens/)
+- [Home Assistant ters vekil ayarları](https://www.home-assistant.io/integrations/http/)
+- [Nabu Casa uzaktan erişim](https://www.nabucasa.com/config/remote/)
 
 ## Çalıştırma ve alan adına taşıma
 

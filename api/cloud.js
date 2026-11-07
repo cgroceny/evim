@@ -1,5 +1,6 @@
 import { cloudService, HttpError } from "../server/cloud.js";
 import { blobRepo } from "../server/blob-repo.js";
+import { readHomeAssistant } from "../server/home-assistant.js";
 const cookie = "__Host-evim-session";
 function tokenFrom(req) {
   return (
@@ -16,7 +17,7 @@ function setCookie(res, token) {
     `${cookie}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${token ? 604800 : 0}`,
   );
 }
-export function createHandler(getService) {
+export function createHandler(getService, homeAssistantOptions) {
 return async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
@@ -77,6 +78,10 @@ return async function handler(req, res) {
     }
     if (req.method === "GET" && action === "session")
       return res.status(200).json({ user: await svc.session(token) });
+    if (req.method === "GET" && action === "ha-states") {
+      const user = await svc.session(token);
+      return res.status(200).json(await readHomeAssistant(user, homeAssistantOptions));
+    }
     if (req.method === "GET" && action === "state")
       // No session cookie means a guest, not a failed login: answer without an error
       // so the first load stays quiet. A present but invalid cookie still gets 401.

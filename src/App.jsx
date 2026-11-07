@@ -85,6 +85,7 @@ import Auth, { Recovery } from "./Auth.jsx";
 import TemperatureControl from "./TemperatureControl.jsx";
 import EnergyPage, { EnergySettings } from "./EnergyPage.jsx";
 import DevicePanel from "./DevicePanel.jsx";
+import HomeAssistantReadings from "./HomeAssistantReadings.jsx";
 import IntegrationsPage, { SetupChecklist } from "./IntegrationsPage.jsx";
 import ProgramPublish from "./ProgramPublish.jsx";
 import HelpPage, { HealthPage, InstallCard } from "./HelpPage.jsx";
@@ -1736,7 +1737,14 @@ export default function App() {
               onAdd={() => add("devices")}
               onDiscover={() => navigate("integrations")}
               actions={actions}
-            />
+            >
+              <HomeAssistantReadings
+                key={user?.id ?? "guest"}
+                online={online}
+                signedIn={!!user}
+                onSignIn={() => setModal("auth")}
+              />
+            </DevicePanel>
           )}
           {page === "integrations" && (
             <IntegrationsPage

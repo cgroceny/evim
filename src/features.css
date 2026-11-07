@@ -447,6 +447,52 @@
 .device-reading.unavailable {
   color: #ad8061;
 }
+.ha-readings {
+  margin-bottom: 22px;
+}
+.ha-reading-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr));
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  max-height: 24rem;
+  overflow: auto;
+}
+.ha-reading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(4ch, auto);
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+.ha-reading strong,
+.ha-reading small {
+  display: block;
+}
+.ha-reading small,
+.ha-reading-actions small {
+  color: var(--muted);
+}
+.ha-reading > div,
+.ha-reading > span {
+  overflow-wrap: anywhere;
+}
+.ha-reading > span {
+  max-width: 15ch;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.ha-reading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
 .device-controls {
   display: flex;
   flex-wrap: wrap;
